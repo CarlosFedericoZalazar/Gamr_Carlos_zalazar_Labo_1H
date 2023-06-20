@@ -1,14 +1,13 @@
 import pygame, sys
 from constantes import *
-from configuraciones import *
 from pygame.locals import *
 from class_player import *
-from auxiliar import animaciones
+from auxiliar import animaciones_player
 from modo import * # PARA VER LOS RECTANGULOS
 
 #############################################################################
 
-def actualizar_pantalla(pantalla, un_personaje: Player, fondo):
+def actualizar_pantalla(pantalla, player: Player, fondo):
     PANTALLA.blit(fondo,(0,0))
     # plataformas
     player.update(pantalla)
@@ -27,7 +26,7 @@ fondo = pygame.transform.scale(fondo, SIZE_SCREEN)
 posicion_inicial = (100,ALTO_PANTALLA / 2)
 
 # ANIMACIONES
-player_animaciones = animaciones()
+player_animaciones = animaciones_player()
 
 # PERSONAJE POSTA
 player = Player(TAMAÑO_PERSONAJE,player_animaciones, posicion_inicial,VELOCIDAD_X,VELOCIDAD_Y)
@@ -70,13 +69,18 @@ while True:
             player.que_hace = 'caminar_arriba'
         elif keys[pygame.K_DOWN]:
             player.que_hace = 'caminar_abajo'
+        elif keys[pygame.K_SPACE]:
+            player.que_hace = 'saltar'
+
         else:
             player.que_hace = 'quieto'
 
     actualizar_pantalla(PANTALLA, player, fondo)
     # MOSTRAMOS LOS LADOS MODO PROGRAMADOR
     if get_modo():
+        pygame.draw.rect(PANTALLA, 'Red', player.lados['bottom'], 3)
         for lado in player.lados:
-            pygame.draw.rect(PANTALLA, 'Blue', player.lados[lado], 3)
-
+            if not lado == 'bottom':
+                pygame.draw.rect(PANTALLA, 'Blue', player.lados[lado], 3)
+    
     pygame.display.update()

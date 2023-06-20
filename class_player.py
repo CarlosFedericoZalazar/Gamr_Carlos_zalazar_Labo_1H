@@ -1,4 +1,4 @@
-from configuraciones import reescalar_imagen 
+from configuraciones import reescalar_imagen
 from auxiliar import obtener_rectangulo
 from constantes import *
 import pygame
@@ -8,6 +8,12 @@ class Player:
         # CONFECCION
         self.ancho = tamaño[0]
         self.alto = tamaño[1]
+        # GRAVEDAD
+        self.gravedad = 5
+        self.potencia_salto = -40
+        self.limite_velocidad_caida = 25
+        self.floor_y = 0
+        self.esta_saltando = False
         # ANIMACIONES
         self.contador_pasos = 0
         self.que_hace = 'quieto'
@@ -19,7 +25,7 @@ class Player:
         rectangulo.x = posicion_inicial[0]
         rectangulo.y = posicion_inicial[1]
         self.lados = obtener_rectangulo(rectangulo)
-        # MOVIMIENTO 
+        # MOVIMIENTO
         self.velocidad_x = velocidad_x
         self.velocidad_y = velocidad_y
         self.desplazamiento_y = 0
@@ -28,17 +34,17 @@ class Player:
         for clave in self.animaciones:
             reescalar_imagen(self.animaciones[clave], (self.ancho, self.alto))
 
-    def animar(self, pantalla, que_animacion:str):
+    def animar(self, pantalla, que_animacion: str):
         animacion = self.animaciones[que_animacion]
         largo = len(animacion)
 
         if self.contador_pasos >= largo:
             self.contador_pasos = 0
-        
+
         pantalla.blit(animacion[self.contador_pasos], self.lados['main'])
         self.contador_pasos += 1
 
-    def mover_x_y(self, velocidad, movimiento_x = True):
+    def mover_x_y(self, velocidad, movimiento_x=True):
         for lado in self.lados:
             if movimiento_x:
                 self.lados[lado].x += velocidad
@@ -53,22 +59,24 @@ class Player:
     def update(self, pantalla):
         if self.back and self.que_hace == 'quieto':
             self.que_hace = 'quieto_atras'
-        
-
-
+        # BUSCARLE LA VUELTA PARA METER LAS ANIMACIONES EN UNA FUNCION
         match self.que_hace:
             case 'caminar_derecha':
-                self.animar(pantalla, 'caminar_derecha')
+                if not self.esta_saltando:
+                    self.animar(pantalla, 'caminar_derecha')
                 self.mover_x_y(self.velocidad_x)
                 self.back = False
             case 'caminar_izquierda':
-                self.animar(pantalla, 'caminar_izquierda')
+                if not self.esta_saltando:
+                    self.animar(pantalla, 'caminar_izquierda')
                 self.mover_x_y(self.velocidad_x * -1)
                 self.back = True
             case 'quieto':
-                self.animar(pantalla, 'quieto')
+                if not self.esta_saltando:
+                    self.animar(pantalla, 'quieto')
             case 'quieto_atras':
-                self.animar(pantalla, 'quieto_atras')
+                if not self.esta_saltando:
+                    self.animar(pantalla, 'quieto_atras')
             case 'caminar_arriba':
                 if self.back and self.que_hace == 'caminar_arriba':
                     self.animar(pantalla, 'caminar_izquierda')
@@ -81,3 +89,32 @@ class Player:
                 else:
                     self.animar(pantalla, 'caminar_derecha')
                 self.mover_x_y(self.velocidad_y, False)
+            case 'saltar':
+                if not self.esta_saltando:
+                    self.esta_saltando = True
+                    self.desplazamiento_y = self.potencia_salto
+                    self.floor_y = self.lados['bottom'].y
+      
+        self.aplicar_gravedad(pantalla)
+
+    # GRAVEDAD DEL PERRSONAJE
+    def aplicar_gravedad(self, pantalla):
+        if self.esta_saltando:
+            if not self.back:
+                self.animar(pantalla, 'saltar')
+            else:
+                self.animar(pantalla, 'saltar_atras')
+
+            for lado in self.lados:
+                self.lados[lado].y += self.desplazamiento_y
+
+            if self.desplazamiento_y < self.limite_velocidad_caida:
+                self.desplazamiento_y += self.gravedad
+
+            if self.lados['bottom'].y >= self.floor_y:
+                self.lados['bottom'].y = self.floor_y
+                self.desplazamiento_y = 0
+                self.esta_saltando = False
+
+        base_rect_main = self.lados['main'].bottom
+        self.lados['bottom'].bottom = base_rect_main
