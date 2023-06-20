@@ -30,7 +30,7 @@ posicion_inicial = (100,ALTO_PANTALLA / 2)
 player_animaciones = animaciones()
 
 # PERSONAJE POSTA
-player = Player(TAMAÑO_PERSONAJE,player_animaciones, posicion_inicial,15)
+player = Player(TAMAÑO_PERSONAJE,player_animaciones, posicion_inicial,VELOCIDAD_X,VELOCIDAD_Y)
 
 
 while True:
@@ -67,7 +67,9 @@ while True:
         elif keys[pygame.K_LEFT]:
             player.que_hace = 'caminar_izquierda'
         elif keys[pygame.K_UP]:
-            player.que_hace = 'salta'
+            player.que_hace = 'caminar_arriba'
+        elif keys[pygame.K_DOWN]:
+            player.que_hace = 'caminar_abajo'
         else:
             player.que_hace = 'quieto'
 
