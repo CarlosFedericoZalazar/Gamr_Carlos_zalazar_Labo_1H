@@ -39,26 +39,42 @@ while True:
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
             pygame.quit()
-            sys.exit(0)    
+            sys.exit(0)
+        elif evento.type == KEYDOWN:
+            if evento.key == pygame.K_TAB:
+                cambiar_modo()    
 
-        if evento.type == pygame.KEYDOWN:
-            if evento.key == pygame.K_LEFT:
-                print('izquierda')
-            if evento.key == pygame.K_RIGHT:
-                print('derecha')
-            if evento.key == pygame.K_UP:
-                print('arriba')
-            if evento.key == pygame.K_DOWN:
-                print('abajo')
-        if evento.type == pygame.KEYUP:
-            if evento.key == pygame.K_LEFT:
-                contador = 0
-            if evento.key == pygame.K_RIGHT:
-                print('derecha_up')
-            if evento.key == pygame.K_UP:
-                print('arriba_up')
-            if evento.key == pygame.K_DOWN:
-                print('abajo_up')
+        # if evento.type == pygame.KEYDOWN:
+        #     if evento.key == pygame.K_LEFT:
+        #         player.que_hace = 'caminar_izquierda'
+        #     elif evento.key == pygame.K_RIGHT:
+        #         player.que_hace = 'caminar_derecha'
+
+        # if evento.type == pygame.KEYUP:
+        #     if evento.key == pygame.K_LEFT:
+        #         contador = 0
+        #     if evento.key == pygame.K_RIGHT:
+        #         print('derecha_up')
+        #     if evento.key == pygame.K_UP:
+        #         print('arriba_up')
+        #     if evento.key == pygame.K_DOWN:
+        #         print('abajo_up')
+
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_RIGHT]:
+            player.que_hace = 'caminar_derecha'
+        elif keys[pygame.K_LEFT]:
+            player.que_hace = 'caminar_izquierda'
+        elif keys[pygame.K_UP]:
+            player.que_hace = 'salta'
+        else:
+            player.que_hace = 'quieto'
 
     actualizar_pantalla(PANTALLA, player, fondo)
-    pygame.display.flip()
+    # MOSTRAMOS LOS LADOS MODO PROGRAMADOR
+    if get_modo():
+        for lado in player.lados:
+            pygame.draw.rect(PANTALLA, 'Blue', player.lados[lado], 3)
+
+    pygame.display.update()

@@ -10,6 +10,7 @@ class Player:
         # ANIMACIONES
         self.contador_pasos = 0
         self.que_hace = 'quieto'
+        self.back = False
         self.animaciones = animaciones
         self.reescalar_animaciones()
         # RECTANGULOS
@@ -35,5 +36,23 @@ class Player:
         pantalla.blit(animacion[self.contador_pasos], self.lados['main'])
         self.contador_pasos += 1
 
+    def mover(self, velocidad):
+        for lado in self.lados:
+            self.lados[lado].x += velocidad
+
     def update(self, pantalla):
-        self.animar(pantalla, 'quieto')
+        if self.back and self.que_hace == 'quieto':
+            self.que_hace = 'quieto_atras'
+        match self.que_hace:
+            case 'caminar_derecha':
+                self.animar(pantalla, 'caminar_derecha')
+                self.mover(self.velocidad)
+                self.back = False
+            case 'caminar_izquierda':
+                self.animar(pantalla, 'caminar_izquierda')
+                self.mover(self.velocidad * -1)
+                self.back = True
+            case 'quieto':
+                self.animar(pantalla, 'quieto')
+            case 'quieto_atras':
+                self.animar(pantalla, 'quieto_atras')
