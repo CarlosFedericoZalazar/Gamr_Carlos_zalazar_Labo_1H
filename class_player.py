@@ -12,7 +12,6 @@ class Player:
         self.gravedad = 5
         self.potencia_salto = -40
         self.limite_velocidad_caida = 25
-        self.floor_y = 0
         self.esta_saltando = False
         # ANIMACIONES
         self.contador_pasos = 0
@@ -29,6 +28,7 @@ class Player:
         self.velocidad_x = velocidad_x
         self.velocidad_y = velocidad_y
         self.desplazamiento_y = 0
+        self.tiempo_trascurrido = 0
 
     def reescalar_animaciones(self):
         for clave in self.animaciones:
@@ -40,7 +40,7 @@ class Player:
 
         if self.contador_pasos >= largo:
             self.contador_pasos = 0
-
+        
         pantalla.blit(animacion[self.contador_pasos], self.lados['main'])
         self.contador_pasos += 1
 
@@ -48,17 +48,13 @@ class Player:
         for lado in self.lados:
             if movimiento_x:
                 self.lados[lado].x += velocidad
-            else:
-                if self.lados[lado].y < TOPE_Y[0]:
-                    self.lados[lado].y = self.lados[lado].y + 10
-                elif self.lados[lado].y > TOPE_Y[1]:
-                    self.lados[lado].y = self.lados[lado].y - 10
-                else:
-                    self.lados[lado].y += velocidad
 
-    def update(self, pantalla):
+    def update(self, pantalla, delta_ms, piso):
+
         if self.back and self.que_hace == 'quieto':
             self.que_hace = 'quieto_atras'
+        if self.back and self.que_hace == 'ataque':
+            self.que_hace = 'ataque_atras'
         # BUSCARLE LA VUELTA PARA METER LAS ANIMACIONES EN UNA FUNCION
         match self.que_hace:
             case 'caminar_derecha':
@@ -77,28 +73,20 @@ class Player:
             case 'quieto_atras':
                 if not self.esta_saltando:
                     self.animar(pantalla, 'quieto_atras')
-            case 'caminar_arriba':
-                if self.back and self.que_hace == 'caminar_arriba':
-                    self.animar(pantalla, 'caminar_izquierda')
-                else:
-                    self.animar(pantalla, 'caminar_derecha')
-                self.mover_x_y(self.velocidad_y * -1, False)
-            case 'caminar_abajo':
-                if self.back and self.que_hace == 'caminar_abajo':
-                    self.animar(pantalla, 'caminar_izquierda')
-                else:
-                    self.animar(pantalla, 'caminar_derecha')
-                self.mover_x_y(self.velocidad_y, False)
             case 'saltar':
                 if not self.esta_saltando:
                     self.esta_saltando = True
                     self.desplazamiento_y = self.potencia_salto
-                    self.floor_y = self.lados['bottom'].y
-      
-        self.aplicar_gravedad(pantalla)
+                    
+            case 'ataque':
+                self.animar(pantalla, 'ataque')
+            case 'ataque_atras':
+                self.animar(pantalla, 'ataque_atras')
+        
+        self.aplicar_gravedad(pantalla, piso)
 
-    # GRAVEDAD DEL PERRSONAJE
-    def aplicar_gravedad(self, pantalla):
+    # GRAVEDAD DEL PERSONAJE
+    def aplicar_gravedad(self, pantalla, piso):
         if self.esta_saltando:
             if not self.back:
                 self.animar(pantalla, 'saltar')
@@ -111,10 +99,9 @@ class Player:
             if self.desplazamiento_y < self.limite_velocidad_caida:
                 self.desplazamiento_y += self.gravedad
 
-            if self.lados['bottom'].y >= self.floor_y:
-                self.lados['bottom'].y = self.floor_y
-                self.desplazamiento_y = 0
-                self.esta_saltando = False
-
-        base_rect_main = self.lados['main'].bottom
-        self.lados['bottom'].bottom = base_rect_main
+        if self.lados['bottom'].colliderect(piso['main']):
+            print('hola mundo')
+            self.esta_saltando = False
+            self.desplazamiento_y = 0
+            self.lados['main'].bottom = piso['main'].top + 5
+            

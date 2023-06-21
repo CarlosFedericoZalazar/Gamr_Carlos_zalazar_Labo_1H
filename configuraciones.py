@@ -52,13 +52,6 @@ player_die = [pygame.image.load(PATH_IMG + 'player\HURT\_HURT_000.png'),
                 pygame.image.load(PATH_IMG + 'player\HURT\_HURT_005.png'),
                 pygame.image.load(PATH_IMG + 'player\HURT\_HURT_006.png')]
 
-player_die = [pygame.image.load(PATH_IMG + 'player\DIE\_DIE_000.png'),
-                pygame.image.load(PATH_IMG + 'player\DIE\_DIE_001.png'),
-                pygame.image.load(PATH_IMG + 'player\DIE\_DIE_002.png'),
-                pygame.image.load(PATH_IMG + 'player\DIE\_DIE_003.png'),
-                pygame.image.load(PATH_IMG + 'player\DIE\_DIE_004.png'),
-                pygame.image.load(PATH_IMG + 'player\DIE\_DIE_005.png'),
-                pygame.image.load(PATH_IMG + 'player\DIE\_DIE_006.png')]
 
 player_walk_left = girar_imagenes(player_walk_right, True, False)
 player_jump_back = girar_imagenes(player_jump, True, False)
@@ -119,4 +112,6 @@ enemy_walk_left = girar_imagenes(enemy_walk_right, True, False)
 enemy_jump_back = girar_imagenes(enemy_jump, True, False)
 enemy_attack_back = girar_imagenes(enemy_attack, True, False)
 enemy_stay_back = girar_imagenes(enemy_stay, True, False)
+
+# PLATAFORMAS
 
