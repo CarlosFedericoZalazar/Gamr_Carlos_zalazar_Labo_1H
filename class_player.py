@@ -2,15 +2,17 @@ from configuraciones import reescalar_imagen
 from auxiliar import obtener_rectangulo
 from constantes import *
 import pygame
-
+print
 class Player:
     def __init__(self, tamaño, animaciones, posicion_inicial, velocidad_x, velocidad_y) -> None:
         # CONFECCION
         self.ancho = tamaño[0]
         self.alto = tamaño[1]
+        # ACCIONES
+        self.atacando = False
         # GRAVEDAD
         self.gravedad = 5
-        self.potencia_salto = -40
+        self.potencia_salto = -35
         self.limite_velocidad_caida = 25
         self.esta_saltando = False
         # ANIMACIONES
@@ -26,7 +28,6 @@ class Player:
         self.lados = obtener_rectangulo(rectangulo)
         # MOVIMIENTO
         self.velocidad_x = velocidad_x
-        self.velocidad_y = velocidad_y
         self.desplazamiento_y = 0
         self.tiempo_trascurrido = 0
 
@@ -40,6 +41,8 @@ class Player:
 
         if self.contador_pasos >= largo:
             self.contador_pasos = 0
+            if self.atacando:
+                self.atacando = False
         
         pantalla.blit(animacion[self.contador_pasos], self.lados['main'])
         self.contador_pasos += 1
@@ -50,7 +53,7 @@ class Player:
                 self.lados[lado].x += velocidad
 
     def update(self, pantalla, delta_ms, list_plataforma):
-
+        print(self.atacando)
         if self.back and self.que_hace == 'quieto':
             self.que_hace = 'quieto_atras'
         if self.back and self.que_hace == 'ataque':
@@ -70,9 +73,11 @@ class Player:
             case 'quieto':
                 if not self.esta_saltando:
                     self.animar(pantalla, 'quieto')
+                    
             case 'quieto_atras':
                 if not self.esta_saltando:
                     self.animar(pantalla, 'quieto_atras')
+                    
             case 'saltar':
                 if not self.esta_saltando:
                     self.esta_saltando = True
@@ -80,9 +85,11 @@ class Player:
                     
             case 'ataque':
                 self.animar(pantalla, 'ataque')
+                self.atacando = True
             case 'ataque_atras':
                 self.animar(pantalla, 'ataque_atras')
-        
+                self.atacando = True
+
         self.aplicar_gravedad(pantalla, list_plataforma)
 
     # GRAVEDAD DEL PERSONAJE
@@ -95,16 +102,22 @@ class Player:
 
             for lado in self.lados:
                 self.lados[lado].y += self.desplazamiento_y
-
-            if self.desplazamiento_y < self.limite_velocidad_caida:
+           
+            if self.desplazamiento_y + self.gravedad < self.limite_velocidad_caida:
                 self.desplazamiento_y += self.gravedad
 
         for piso in list_plataforma:
-            if self.lados['bottom'].colliderect(piso.lados['main']):
+            
+            if self.lados['bottom'].colliderect(piso.lados['top']):
+                
                 self.esta_saltando = False
                 self.desplazamiento_y = 0
                 self.lados['main'].bottom = piso.lados['main'].top + 10
                 break
             else:
+                
                 self.esta_saltando = True
+        
+
+                
             
