@@ -49,7 +49,7 @@ class Player:
             if movimiento_x:
                 self.lados[lado].x += velocidad
 
-    def update(self, pantalla, delta_ms, piso):
+    def update(self, pantalla, delta_ms, list_plataforma):
 
         if self.back and self.que_hace == 'quieto':
             self.que_hace = 'quieto_atras'
@@ -83,10 +83,10 @@ class Player:
             case 'ataque_atras':
                 self.animar(pantalla, 'ataque_atras')
         
-        self.aplicar_gravedad(pantalla, piso)
+        self.aplicar_gravedad(pantalla, list_plataforma)
 
     # GRAVEDAD DEL PERSONAJE
-    def aplicar_gravedad(self, pantalla, piso):
+    def aplicar_gravedad(self, pantalla, list_plataforma):
         if self.esta_saltando:
             if not self.back:
                 self.animar(pantalla, 'saltar')
@@ -99,9 +99,12 @@ class Player:
             if self.desplazamiento_y < self.limite_velocidad_caida:
                 self.desplazamiento_y += self.gravedad
 
-        if self.lados['bottom'].colliderect(piso['main']):
-            print('hola mundo')
-            self.esta_saltando = False
-            self.desplazamiento_y = 0
-            self.lados['main'].bottom = piso['main'].top + 10
+        for piso in list_plataforma:
+            if self.lados['bottom'].colliderect(piso.lados['main']):
+                self.esta_saltando = False
+                self.desplazamiento_y = 0
+                self.lados['main'].bottom = piso.lados['main'].top + 10
+                break
+            else:
+                self.esta_saltando = True
             

@@ -9,16 +9,16 @@ from modo import * # PARA VER LOS RECTANGULOS
 
 #############################################################################
 
-def actualizar_pantalla(pantalla, player: Player, fondo, delta_ms, enemy_list, lados_piso):
+def actualizar_pantalla(pantalla, player: Player, fondo, delta_ms, enemy_list, list_plataforma):
     player.tiempo_trascurrido += delta_ms
     if player.tiempo_trascurrido >= 60:
         player.tiempo_trascurrido = 0
         PANTALLA.blit(fondo,(0,0))
         
         for enemy in enemy_list:
-            enemy.update(pantalla, delta_ms, lados_piso)
+            enemy.update(pantalla, delta_ms, list_plataforma)
         # plataformas
-        player.update(pantalla, delta_ms, lados_piso)
+        player.update(pantalla, delta_ms, list_plataforma)
 #############################################################################
 
 pygame.init()
@@ -28,20 +28,18 @@ fondo = pygame.image.load(PATH_FONDO + 'fondo.png')
 fondo = pygame.transform.scale(fondo, SIZE_SCREEN)
 
 # PLATAFORMA 
-
-# SUPERFICIE
-#piso = pygame.Rect(0,0,ANCHO_PANTALLA,20)
-
 piso_surface = pygame.Surface((ANCHO_PANTALLA,20))
 
-
+lista_plataforma = []
 plataforma_bosque = pygame.image.load(PATH_PLATAFORMAS + '\\bosque\\tile_3.png')
+plataforma_piso = Plataforma((100,200), plataforma_bosque, (500,500),0,0)
+lista_plataforma.append(plataforma_piso)
 # plataforma_rect = pygame.Rect(plataforma_bosque.get_rect())
 # plataforma_rect.x = 500
 # plataforma_rect.y = 500
 # plataforma_lados = obtener_rectangulo(plataforma_rect)
 
-#plataforma_piso = Plataforma((100,200), plataforma_bosque, (500,500),0,0)
+
 
 
 # ANIMACIONES
@@ -50,12 +48,12 @@ enemys_animaciones = animaciones_anemys()
 # PERSONAJE POSTA
 posicion_inicial = (100,500)
 player = Player(TAMAÑO_PERSONAJE,player_animaciones, posicion_inicial,VELOCIDAD_X,VELOCIDAD_Y)
-plataforma_piso = Plataforma((100,200), piso_surface, (500,player.lados['bottom'].top),0,0)
+plataforma_piso = Plataforma((100,200), piso_surface, (0,player.lados['bottom'].top),0,0)
+lista_plataforma.append(plataforma_piso)
 # ENEMIGO
 numero_aleatorio = random.randint(1, 5)
 y_random = random.randint(TOPE_Y[0], TOPE_Y[1])
 
-# piso.top = player.lados['main'].bottom
 
 enemy_list = []
 
@@ -91,17 +89,20 @@ while True:
             enemigo.que_hace = 'caminar_izquierda'
         
 
-    actualizar_pantalla(PANTALLA, player, fondo, delta_ms, enemy_list, plataforma_piso.lados)
+    actualizar_pantalla(PANTALLA, player, fondo, delta_ms, enemy_list, lista_plataforma)
     PANTALLA.blit(plataforma_bosque, (500, 500))
     # MOSTRAMOS LOS LADOS MODO PROGRAMADOR  
     if get_modo():
         #pygame.draw.rect(PANTALLA, 'Red', player.lados['bottom'], 3)
         
         for lado in player.lados:
-            pygame.draw.rect(PANTALLA, 'Orange', plataforma_piso.lados['bottom'], 3)
+            for plataforma in lista_plataforma:
+                pygame.draw.rect(PANTALLA, 'Orange', plataforma.lados['bottom'], 3)
+                pygame.draw.rect(PANTALLA, 'Red', player.lados['bottom'], 3)
             if not lado == 'bottom':
                 pygame.draw.rect(PANTALLA, 'Blue', player.lados[lado], 3)
-                pygame.draw.rect(PANTALLA, 'Yellow', plataforma_piso.lados['top'], 3)
+                for plataforma in lista_plataforma:
+                    pygame.draw.rect(PANTALLA, 'Yellow', plataforma.lados['main'], 3)
                 for enemy in enemy_list:
                     pygame.draw.rect(PANTALLA, 'Pink', enemy.lados[lado], 3)
             pygame.draw.rect(PANTALLA, 'Black', player.lados['top'], 3)
