@@ -3,6 +3,7 @@ from constantes import *
 from pygame.locals import *
 from class_player import *
 from class_enemy import *
+from class_plataforma import Plataforma
 from auxiliar import animaciones_player, animaciones_anemys
 from modo import * # PARA VER LOS RECTANGULOS
 
@@ -27,28 +28,34 @@ fondo = pygame.image.load(PATH_FONDO + 'fondo.png')
 fondo = pygame.transform.scale(fondo, SIZE_SCREEN)
 
 # PLATAFORMA 
+
+# SUPERFICIE
+#piso = pygame.Rect(0,0,ANCHO_PANTALLA,20)
+
+piso_surface = pygame.Surface((ANCHO_PANTALLA,20))
+
+
 plataforma_bosque = pygame.image.load(PATH_PLATAFORMAS + '\\bosque\\tile_3.png')
-plataforma_rect = pygame.Rect(plataforma_bosque.get_rect())
-plataforma_rect.x = 500
-plataforma_rect.y = 500
-plataforma_lados = obtener_rectangulo(plataforma_rect)
-posicion_inicial = (100,500)
+# plataforma_rect = pygame.Rect(plataforma_bosque.get_rect())
+# plataforma_rect.x = 500
+# plataforma_rect.y = 500
+# plataforma_lados = obtener_rectangulo(plataforma_rect)
+
+#plataforma_piso = Plataforma((100,200), plataforma_bosque, (500,500),0,0)
+
 
 # ANIMACIONES
 player_animaciones = animaciones_player()
 enemys_animaciones = animaciones_anemys()
 # PERSONAJE POSTA
+posicion_inicial = (100,500)
 player = Player(TAMAÑO_PERSONAJE,player_animaciones, posicion_inicial,VELOCIDAD_X,VELOCIDAD_Y)
-
+plataforma_piso = Plataforma((100,200), piso_surface, (500,player.lados['bottom'].top),0,0)
 # ENEMIGO
 numero_aleatorio = random.randint(1, 5)
 y_random = random.randint(TOPE_Y[0], TOPE_Y[1])
 
-# SUPERFICIE
-piso = pygame.Rect(0,0,ANCHO_PANTALLA,20)
-piso.top = player.lados['main'].bottom
-
-lados_piso = obtener_rectangulo(piso)
+# piso.top = player.lados['main'].bottom
 
 enemy_list = []
 
@@ -84,18 +91,18 @@ while True:
             enemigo.que_hace = 'caminar_izquierda'
         
 
-    actualizar_pantalla(PANTALLA, player, fondo, delta_ms, enemy_list, lados_piso)
+    actualizar_pantalla(PANTALLA, player, fondo, delta_ms, enemy_list, plataforma_piso.lados)
     PANTALLA.blit(plataforma_bosque, (500, 500))
     # MOSTRAMOS LOS LADOS MODO PROGRAMADOR  
     if get_modo():
-        pygame.draw.rect(PANTALLA, 'Red', player.lados['bottom'], 3)
+        #pygame.draw.rect(PANTALLA, 'Red', player.lados['bottom'], 3)
         
         for lado in player.lados:
-            pygame.draw.rect(PANTALLA, 'Orange', plataforma_lados[lado], 3)
+            pygame.draw.rect(PANTALLA, 'Orange', plataforma_piso.lados['bottom'], 3)
             if not lado == 'bottom':
                 pygame.draw.rect(PANTALLA, 'Blue', player.lados[lado], 3)
-                pygame.draw.rect(PANTALLA, 'Yellow', lados_piso['top'], 3)
+                pygame.draw.rect(PANTALLA, 'Yellow', plataforma_piso.lados['top'], 3)
                 for enemy in enemy_list:
                     pygame.draw.rect(PANTALLA, 'Pink', enemy.lados[lado], 3)
-    
+            pygame.draw.rect(PANTALLA, 'Black', player.lados['top'], 3)
     pygame.display.update()

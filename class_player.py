@@ -103,5 +103,5 @@ class Player:
             print('hola mundo')
             self.esta_saltando = False
             self.desplazamiento_y = 0
-            self.lados['main'].bottom = piso['main'].top + 5
+            self.lados['main'].bottom = piso['main'].top + 10
             
